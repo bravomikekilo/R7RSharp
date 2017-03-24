@@ -22,9 +22,9 @@ namespace R7RSharp
 
         public bool extendNext()
         {
+            if (cache.Count > 0 && Lexeme.isEOF(cache[cache.Count - 1])) return false;
             var n = forward();
-            if (Lexeme.isEOF(n)) { return false; }
-            else { cache.Add(n); }
+            cache.Add(n);
             return true;
         }
 
@@ -67,39 +67,70 @@ namespace R7RSharp
         public Lexer(string content)
         {
             cache = new List<Lexeme>();
-            pos = -1;
+            pos = 0;
             this.content = content;
         }
 
-        private bool check(Delegate)
+        //private bool check(Delegate)
         
         private Lexeme forward() {
-            var isSpace = parseWhiteSpace();
-            if (isSpace) { return Lexeme.WhiteSpace();};
-            if(pos >= content.Length) { return Lexeme.EOF();}
+            if (pos >= content.Length) return Lexeme.EOF();
+            var space = parseWhiteSpace();
+            if (space != null) { return space;};
             var comment = parserComment();
             if (comment != null) return comment;
+            var number = parseNumber();
+            if (number != null) return number;
 
             return new Lexeme();
         }
         
-        private bool parseWhiteSpace()
+        private Lexeme parseWhiteSpace()
         {
-            pos = pos < 0 ? 0 : pos;
-            if (pos >= content.Length || !R7Lang.isWhiteSpaceChar(content[pos])) return false;
+            if (pos >= content.Length || !Char.IsWhiteSpace(content[pos])) return null;
             for (; pos < content.Length; ++pos) 
             {
-                if (!R7Lang.isWhiteSpaceChar(content[pos])) { return true; }
+                if (!Char.IsWhiteSpace(content[pos])) { return Lexeme.WhiteSpace(); }
             }
-            return false;
-        }
-        
-        private Lexeme parseNumber()
-        {
             return null;
         }
-
-        private static readonly Regex IntPattern = new Regex("^[]");
+        
+        private static readonly Regex IntPattern = new Regex(@"[1-9][0-9]*\.?[0-9]*");
+        private Lexeme parseNumber()
+        {
+            if (!Char.IsDigit(content[pos])) { return null; }
+            Console.WriteLine("begin to parse number!");
+            var match = IntPattern.Match(content, pos);
+            if (match.Success)
+            {
+                Console.WriteLine("match a number-like string");
+                var temp = match.Value;
+                try
+                {
+                    var value = Int32.Parse(temp);
+                    Console.WriteLine("parse a Int, Length is {0}", match.Length);
+                    pos += match.Length;
+                    return Lexeme.Int(value);
+                }
+                catch (FormatException)
+                {
+                    try
+                    { 
+                        var value = Double.Parse(temp);
+                        Console.WriteLine("parse a Float");
+                        pos += match.Length;
+                        return Lexeme.Float(value);
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("fail to parse the string!");
+                        return null;
+                    }
+                }
+            }
+            Console.WriteLine("can't match a number-like string!");
+            return null;
+        }
 
         private Lexeme parserComment()
         {

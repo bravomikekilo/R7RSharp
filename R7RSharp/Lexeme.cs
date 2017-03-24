@@ -38,7 +38,12 @@ namespace R7RSharp
             this.kind = kind;
             this.content = content;
         }
-        
+
+        public override string ToString()
+        {
+            return String.Format("{{Kind :{0}, content :{1}}}", kind.ToString(), content == null ? "null" : content.ToString());
+        }
+
         public static Lexeme WhiteSpace() { return new Lexeme(LexType.WhiteSpace, null); }
         public static bool isWhiteSpace(Lexeme x) { return x.kind == LexType.WhiteSpace; }
 

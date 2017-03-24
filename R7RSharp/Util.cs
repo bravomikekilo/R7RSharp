@@ -26,5 +26,14 @@ namespace R7RSharp
             }
             return true;
         }
+
+        public static bool charIn(char x, string a)
+        {
+            foreach(var i in a)
+            {
+                if (i == x) return true;
+            }
+            return false;
+        }
     }
 }
