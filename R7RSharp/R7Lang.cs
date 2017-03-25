@@ -8,7 +8,7 @@ namespace R7RSharp
     {
         public static readonly char LPARE = '(';
         public static readonly char RPARE = ')';
-        public static readonly char SEMICOLON = ';';
+        public const char SEMICOLON = ';';
         public static readonly char SHARP = '#';
         public static readonly char SQUTO = '\'';
         public static readonly char BQUTO = '`';
@@ -31,7 +31,23 @@ namespace R7RSharp
         public static readonly char EQUAL = '=';
         public static readonly char DOT = '.';
         public static readonly char BANG = '!';
-        public static readonly string WhiteSpaceChar = " \t\r\n";
+        public const string WhiteSpaceChar = " \t\r\n";
+        public enum DELIMITER
+        {
+            LPARE = 40,
+            RPARE = 41,
+        }
+        
+        public enum KEYWORDS
+        {
+            define = 1,
+        }
+
+        public static readonly Dictionary<String, KEYWORDS> Keywords = new Dictionary<String, KEYWORDS>
+        {
+            { "define", KEYWORDS.define }
+        };
+
         public static bool isWhiteSpaceChar(char a)
         {
             var ret = false;

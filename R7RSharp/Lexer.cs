@@ -81,6 +81,8 @@ namespace R7RSharp
             if (comment != null) return comment;
             var number = parseNumber();
             if (number != null) return number;
+            var iden = parseIden();
+            if (iden != null) return iden;
 
             return new Lexeme();
         }
@@ -92,23 +94,23 @@ namespace R7RSharp
             {
                 if (!Char.IsWhiteSpace(content[pos])) { return Lexeme.WhiteSpace(); }
             }
-            return null;
+            return Lexeme.WhiteSpace();
         }
         
-        private static readonly Regex IntPattern = new Regex(@"[1-9][0-9]*\.?[0-9]*");
+        private static readonly Regex IntPattern = new Regex(@"\G[1-9][0-9]*\.?[0-9]*");
         private Lexeme parseNumber()
         {
-            if (!Char.IsDigit(content[pos])) { return null; }
-            Console.WriteLine("begin to parse number!");
+            //if (!Char.IsDigit(content[pos])) { return null; }
+            //Console.WriteLine("begin to parse number!");
             var match = IntPattern.Match(content, pos);
             if (match.Success)
             {
-                Console.WriteLine("match a number-like string");
+                //Console.WriteLine("match a number-like string");
                 var temp = match.Value;
                 try
                 {
                     var value = Int32.Parse(temp);
-                    Console.WriteLine("parse a Int, Length is {0}", match.Length);
+                    //Console.WriteLine("parse a Int, Length is {0}", match.Length);
                     pos += match.Length;
                     return Lexeme.Int(value);
                 }
@@ -117,19 +119,36 @@ namespace R7RSharp
                     try
                     { 
                         var value = Double.Parse(temp);
-                        Console.WriteLine("parse a Float");
+                        //Console.WriteLine("parse a Float");
                         pos += match.Length;
                         return Lexeme.Float(value);
                     }
                     catch (FormatException)
                     {
-                        Console.WriteLine("fail to parse the string!");
+                        //Console.WriteLine("fail to parse the string!");
                         return null;
                     }
                 }
             }
-            Console.WriteLine("can't match a number-like string!");
+            //Console.WriteLine("can't match a number-like string!");
             return null;
+        }
+
+        private static readonly Regex IdenPattern = new Regex(@"\G[a-zA-Z_]\w*");
+        private Lexeme parseIden()
+        {
+            var match = IdenPattern.Match(content, pos);
+            if (match.Success)
+            {
+                var con = content.Substring(pos, match.Length);
+                if (R7Lang.Keywords.ContainsKey(con))
+                {
+                    return Lexeme.Keyword(R7Lang.Keywords[con]);
+                }
+                pos += match.Length;
+                return Lexeme.Iden(con);
+            }
+            return null ;
         }
 
         private Lexeme parserComment()

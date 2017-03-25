@@ -59,7 +59,7 @@ namespace R7RSharp
         public static Lexeme Float(double value) { return new Lexeme(LexType.Float, value); }
         public static bool isFloat(Lexeme x) { return x.kind == LexType.Float; }
 
-        public static Lexeme KeyWord(string content) { return new Lexeme(LexType.KeyWord, content); }
+        public static Lexeme Keyword(R7Lang.KEYWORDS KeywordCode) { return new Lexeme(LexType.KeyWord, KeywordCode); }
         public static bool isKeyWord(Lexeme x) { return x.kind == LexType.KeyWord; }
 
         public static Lexeme Iden(string name) { return new Lexeme(LexType.Iden, name); }
