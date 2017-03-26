@@ -36,4 +36,28 @@ namespace R7RSharp
             return false;
         }
     }
+
+    class SExpVisualizer
+    {
+        private SExp root;
+        private StringBuilder content;
+        private string name;
+
+        public SExpVisualizer(SExp root, string name)
+        {
+            this.root = root;
+            this.name = name;
+            this.content = new StringBuilder();
+        }
+    }
+
+    class Counter
+    {
+        private int count;
+        public int GetCount() { return count; }
+        public int tick() { return ++count; }
+        public int jump(int length) { count += length; return count; }
+        public Counter() { this.count = 0; }
+        public void Reset() { count = 0; }
+    }
 }

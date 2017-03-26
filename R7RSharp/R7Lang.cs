@@ -4,7 +4,7 @@ using System.Text;
 
 namespace R7RSharp
 {
-    class R7Lang
+    public class R7Lang
     {
         public static readonly char LPARE = '(';
         public static readonly char RPARE = ')';
@@ -37,22 +37,28 @@ namespace R7RSharp
             LPARE = 40,
             RPARE = 41,
         }
-        
+
         public enum KEYWORDS
         {
-            define = 1,
+            define,
+            lambda,
         }
 
-        public static readonly Dictionary<String, KEYWORDS> Keywords = new Dictionary<String, KEYWORDS>
-        {
-            { "define", KEYWORDS.define }
-        };
 
         public static bool isWhiteSpaceChar(char a)
         {
             var ret = false;
-            foreach(var i in WhiteSpaceChar){ if (i == a) ret = true; }
+            foreach (var i in WhiteSpaceChar) { if (i == a) ret = true; }
             return ret;
         }
+
+        public static readonly Dictionary<char, char> ControlTable = new Dictionary<char, char>
+            {
+                {'n', '\n' },
+                {'r', '\r' },
+                {'t', '\t' },
+                {'\\', '\\' },
+                {'"', '"' }
+            };
     }
 }

@@ -4,10 +4,10 @@ using System.Text;
 
 namespace R7RSharp
 {
-    class Lexeme
-   {
-        private LexType kind;
-        private object content;
+    public class Lexeme: IEquatable<Lexeme>
+    {
+        private readonly LexType kind;
+        private readonly object content;
 
         enum LexType
         {
@@ -16,7 +16,7 @@ namespace R7RSharp
             Comment,
             Int,
             Float,
-            String,
+            Str,
             KeyWord,
             EOF
         }
@@ -41,7 +41,14 @@ namespace R7RSharp
 
         public override string ToString()
         {
-            return String.Format("{{Kind :{0}, content :{1}}}", kind.ToString(), content == null ? "null" : content.ToString());
+            return System.String.Format("{{Kind :{0}, content :{1}}}", kind.ToString(), content == null ? "null" : content.ToString());
+        }
+
+        public bool Equals(Lexeme other)
+        {
+            if (kind != other.kind) return false;
+            if (content == null && other.content == null) return true;
+            return content.ToString() == other.content.ToString();
         }
 
         public static Lexeme WhiteSpace() { return new Lexeme(LexType.WhiteSpace, null); }
@@ -59,11 +66,14 @@ namespace R7RSharp
         public static Lexeme Float(double value) { return new Lexeme(LexType.Float, value); }
         public static bool isFloat(Lexeme x) { return x.kind == LexType.Float; }
 
+        public static Lexeme Str(string value) { return new Lexeme(LexType.Str, value); }
+        public static bool isStr(Lexeme x) { return x.kind == LexType.Str; }
+
         public static Lexeme Keyword(R7Lang.KEYWORDS KeywordCode) { return new Lexeme(LexType.KeyWord, KeywordCode); }
         public static bool isKeyWord(Lexeme x) { return x.kind == LexType.KeyWord; }
 
         public static Lexeme Iden(string name) { return new Lexeme(LexType.Iden, name); }
         public static bool isIden(Lexeme x) { return x.kind == LexType.Iden; }
 
-   }
+    }
 }

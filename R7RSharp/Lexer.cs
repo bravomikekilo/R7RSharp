@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace R7RSharp
 {
-    class Lexer: IEnumerable<Lexeme>
+    public class Lexer: IEnumerable<Lexeme>
     {
         
         public bool extendTo(int targetIndex)
@@ -75,21 +75,68 @@ namespace R7RSharp
         
         private Lexeme forward() {
             if (pos >= content.Length) return Lexeme.EOF();
+
             var space = parseWhiteSpace();
-            if (space != null) { return space;};
+            if (space != null) return space;
+
+            var misc = parseMisc();
+            if (misc != null) return misc;
+
             var comment = parserComment();
             if (comment != null) return comment;
+
             var number = parseNumber();
             if (number != null) return number;
+
+            var str = parseString();
+            if (str != null) return str;
+
             var iden = parseIden();
             if (iden != null) return iden;
 
-            return new Lexeme();
+            throw new CompilerException("Lexer error, unable to continue");
+        }
+
+        private Lexeme parseString()
+        {
+            if(content[pos] == R7Lang.DQUTO)
+            {
+                var p = ++pos;
+                var f = p;
+                var sb = new StringBuilder();
+                try
+                {
+                    for (;;++p)
+                    {
+                        if (content[p] == R7Lang.BACKSLASH)
+                        {
+                            if (p > f)
+                            {
+                                sb.Append(content, f, p - f);
+                                ++p;
+                                if (R7Lang.ControlTable.ContainsKey(content[p])) { sb.Append(R7Lang.ControlTable[content[p]]); f = ++p; }
+                                else throw new CompilerException("string parsing error, Unknown escape character!"); 
+                            }
+                        }
+                        if (content[p] == R7Lang.DQUTO)
+                        {
+                            if (p > f) sb.Append(content, f, p - f);
+                            pos = ++p;
+                            return Lexeme.Str(sb.ToString());
+                        }
+                    }
+                }
+                catch (System.IndexOutOfRangeException)
+                {
+                    throw new CompilerException("string parsing error, unclosed string found!");
+                }
+            }
+            return null;
         }
         
         private Lexeme parseWhiteSpace()
         {
-            if (pos >= content.Length || !Char.IsWhiteSpace(content[pos])) return null;
+            if (!Char.IsWhiteSpace(content[pos])) return null;
             for (; pos < content.Length; ++pos) 
             {
                 if (!Char.IsWhiteSpace(content[pos])) { return Lexeme.WhiteSpace(); }
@@ -97,12 +144,12 @@ namespace R7RSharp
             return Lexeme.WhiteSpace();
         }
         
-        private static readonly Regex IntPattern = new Regex(@"\G[1-9][0-9]*\.?[0-9]*");
+        private static readonly Regex NumberPattern = new Regex(@"\G[1-9][0-9]*\.?[0-9]*");
         private Lexeme parseNumber()
         {
             //if (!Char.IsDigit(content[pos])) { return null; }
             //Console.WriteLine("begin to parse number!");
-            var match = IntPattern.Match(content, pos);
+            var match = NumberPattern.Match(content, pos);
             if (match.Success)
             {
                 //Console.WriteLine("match a number-like string");
@@ -134,17 +181,13 @@ namespace R7RSharp
             return null;
         }
 
-        private static readonly Regex IdenPattern = new Regex(@"\G[a-zA-Z_]\w*");
+        private static readonly Regex IdenPattern = new Regex(@"\G[a-zA-Z_!$%&*+-./:<=>?@^_~][0-9a-zA-Z_!$%&*+-./:<=>?@^_~]*");
         private Lexeme parseIden()
         {
             var match = IdenPattern.Match(content, pos);
             if (match.Success)
             {
                 var con = content.Substring(pos, match.Length);
-                if (R7Lang.Keywords.ContainsKey(con))
-                {
-                    return Lexeme.Keyword(R7Lang.Keywords[con]);
-                }
                 pos += match.Length;
                 return Lexeme.Iden(con);
             }
@@ -158,7 +201,9 @@ namespace R7RSharp
                 var changeLine = content.IndexOf(R7Lang.CHANGELINE, pos);
                 if (changeLine < 0)
                 {
-                    return Lexeme.Comment(content.Substring(pos + 1));
+                    var con = content.Substring(pos + 1);
+                    pos = content.Length;
+                    return Lexeme.Comment(con);
                 }
                 else
                 {
@@ -168,6 +213,35 @@ namespace R7RSharp
                 }
             }
             return null;  // TODO: need to add support for #; and block comment
+        }
+
+        private Lexeme parseMisc()
+        {
+            var head = content[pos];
+            if (head == R7Lang.LPARE) { ++pos; return Lexeme.Iden("("); };
+            if (head == R7Lang.RPARE) { ++pos; return Lexeme.Iden(")"); };
+            if (head == R7Lang.SQUTO) { ++pos; return Lexeme.Iden("'"); };
+
+            if (head == R7Lang.SHARP)
+            {
+                try
+                {
+                    var match = IdenPattern.Match(content, ++pos);
+                    if (match.Success)
+                    {
+                        var con = content.Substring(pos - 1, match.Length+1);
+                        pos += match.Length;
+                        return Lexeme.Iden(con);
+                    }
+                    else --pos;
+                }
+                catch(System.IndexOutOfRangeException)
+                {
+                    throw new CompilerException("Lexer error, unable to parse #");
+                }
+
+            }
+            return null;
         }
     }
 

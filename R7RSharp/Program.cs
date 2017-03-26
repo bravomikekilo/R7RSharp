@@ -8,7 +8,7 @@ namespace R7RSharp
         {
             Console.WriteLine("Hello World!");
             //var input = "   abc 10.1+1.2 () [] ";
-            var input = "  abc  1 ";
+            var input = @"(* (+ 4 5) 3)";
             var lex = new Lexer(input);
             foreach(var i in lex)
             {
