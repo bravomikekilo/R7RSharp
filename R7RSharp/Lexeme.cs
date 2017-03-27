@@ -4,76 +4,133 @@ using System.Text;
 
 namespace R7RSharp
 {
-    public class Lexeme: IEquatable<Lexeme>
+    public abstract class Lexeme: IEquatable<Lexeme>
     {
-        private readonly LexType kind;
-        private readonly object content;
+        abstract public bool Equals(Lexeme other);
+    }
 
-        enum LexType
+
+    public class Lex
+    {
+        public static bool isIden(Lexeme lex) => lex.GetType() == typeof(Iden); 
+        public static bool isWhiteSpace(Lexeme lex) => lex.GetType() == typeof(WhiteSpace); 
+        public static bool isComment(Lexeme lex) => lex.GetType() == typeof(Comment); 
+        public static bool isInt(Lexeme lex) => lex.GetType() == typeof(Int); 
+        public static bool isFloat(Lexeme lex) => lex.GetType() == typeof(Float); 
+        public static bool isStr(Lexeme lex) => lex.GetType() == typeof(Str); 
+        public static bool isKeyword(Lexeme lex) => lex.GetType() == typeof(Keyword); 
+        public static bool isEOF(Lexeme lex) => lex.GetType() == typeof(EOF); 
+    }
+
+    public class Iden: Lexeme, IEquatable<Lexeme>, IToSExp
+    {
+        private readonly string Value;
+        public string get() => Value;
+        public Iden(string value) { Value = value; }
+        public override bool Equals(Lexeme other)
         {
-            Iden,
-            WhiteSpace,
-            Comment,
-            Int,
-            Float,
-            Str,
-            KeyWord,
-            EOF
+            var o = other as Iden;
+            return o != null && Value == o.Value;
         }
 
-        public Lexeme()
+        public SExp ToSExp(SExp father) => new SSymbol(Value, father);
+        public override string ToString() => String.Format("{{Iden, Value:{0}}}", Value); 
+    }
+
+    public class WhiteSpace: Lexeme, IEquatable<Lexeme>
+    {
+        public WhiteSpace() { }
+        public override bool Equals(Lexeme other)
         {
-            this.content = null;
-            this.kind = LexType.EOF;
+            var o = other as WhiteSpace;
+            return o != null;
+        }
+        public override string ToString() => "{WhiteSpace}";
+    }
+
+    public class EOF: Lexeme, IEquatable<Lexeme>
+    {
+        public EOF() { }
+        public override bool Equals(Lexeme other)
+        {
+            var o = other as EOF;
+            return o != null;
+        }
+        public override string ToString() => "{EOF}";
+    }
+
+
+    public class Comment: Lexeme, IEquatable<Lexeme>
+    {
+        private readonly string Value;
+        public string get() => Value;
+        public Comment(string value) { Value = value; }
+        public override bool Equals(Lexeme other)
+        {
+            var o = other as Comment;
+            return o != null && Value == o.Value;
+        }
+        public override string ToString() => String.Format("{{Comment, Value:{0}}}", Value); 
+    }
+
+    public class Int : Lexeme, IEquatable<Lexeme>, IToSExp
+    {
+        public override bool Equals(Lexeme other)
+        {
+            var o = other as Int;
+            return o != null && Value == o.Value;
+        }
+        private readonly int Value;
+        public int get() => Value;
+
+        public SExp ToSExp(SExp father) => new SInt(Value, father);
+            
+
+        public Int(int value){ Value = value; }
+        public override string ToString() => String.Format("{{Int, Value:{0}}}", Value); 
+    }
+
+    public class Float : Lexeme, IEquatable<Lexeme>, IToSExp
+    {
+        public override bool Equals(Lexeme other)
+        {
+            var o = other as Float;
+            return o != null && Value == o.Value;
         }
 
-        public object get()
-        {
-            return this.content;
-        }
-        
-        // helper function for static functions
-        private Lexeme(LexType kind, Object content)
-        {
-            this.kind = kind;
-            this.content = content;
-        }
+        public SExp ToSExp(SExp father) => new SFloat(Value, father);
 
-        public override string ToString()
+        private double Value;
+        public Float(double value){ Value = value; }
+        public override string ToString() => String.Format("{{Float, Value:{0}}}", Value); 
+    }
+
+    public class Str : Lexeme, IEquatable<Lexeme>, IToSExp
+    {
+        public override bool Equals(Lexeme other)
         {
-            return System.String.Format("{{Kind :{0}, content :{1}}}", kind.ToString(), content == null ? "null" : content.ToString());
+            var o = other as Str;
+            return o != null && Value == o.Value;
         }
 
-        public bool Equals(Lexeme other)
+        public SExp ToSExp(SExp father) => new SString(Value, father);
+
+        private string Value;
+        public Str(string value){ Value = value; }
+        public override string ToString() => String.Format("{{Str, Value:{0}}}", Value); 
+    }
+
+    public class Keyword : Lexeme, IEquatable<Lexeme>
+    {
+        public override bool Equals(Lexeme other)
         {
-            if (kind != other.kind) return false;
-            if (content == null && other.content == null) return true;
-            return content.ToString() == other.content.ToString();
+            var o = other as Keyword;
+            return o != null && Value == o.Value;
         }
+        private readonly R7Lang.KEYWORDS Value;
+        public R7Lang.KEYWORDS get() => Value;
 
-        public static Lexeme WhiteSpace() { return new Lexeme(LexType.WhiteSpace, null); }
-        public static bool isWhiteSpace(Lexeme x) { return x.kind == LexType.WhiteSpace; }
-
-        public static Lexeme EOF() { return new Lexeme(); }
-        public static bool isEOF(Lexeme x) { return x.kind == LexType.EOF; }
-
-        public static Lexeme Comment(string content = "") { return new Lexeme(LexType.Comment, content); }
-        public static bool isComment(Lexeme x) { return x.kind == LexType.Comment; }
-
-        public static Lexeme Int(int value) { return new Lexeme(LexType.Int, value); }
-        public static bool isInt(Lexeme x) { return x.kind == LexType.Int; }
-
-        public static Lexeme Float(double value) { return new Lexeme(LexType.Float, value); }
-        public static bool isFloat(Lexeme x) { return x.kind == LexType.Float; }
-
-        public static Lexeme Str(string value) { return new Lexeme(LexType.Str, value); }
-        public static bool isStr(Lexeme x) { return x.kind == LexType.Str; }
-
-        public static Lexeme Keyword(R7Lang.KEYWORDS KeywordCode) { return new Lexeme(LexType.KeyWord, KeywordCode); }
-        public static bool isKeyWord(Lexeme x) { return x.kind == LexType.KeyWord; }
-
-        public static Lexeme Iden(string name) { return new Lexeme(LexType.Iden, name); }
-        public static bool isIden(Lexeme x) { return x.kind == LexType.Iden; }
-
+        public Keyword(R7Lang.KEYWORDS value){ Value = value; }
+        public override string ToString() => String.Format("{{Keyword, Value:{0}}}", Value); 
     }
 }

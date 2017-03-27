@@ -51,7 +51,7 @@ namespace R7RSharp
         }
     }
 
-    class Counter
+    public class Counter
     {
         private int count;
         public int GetCount() { return count; }

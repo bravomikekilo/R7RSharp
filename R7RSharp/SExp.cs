@@ -14,7 +14,12 @@ namespace R7RSharp
         Symbol,
     }
 
-    abstract class SExp
+    interface IToSExp
+    {
+        SExp ToSExp(SExp father);
+    }
+
+    public abstract class SExp
     {
         public SExp Father { get => Father; set => value = Father; }
         abstract public string ToDot(Counter ct);
@@ -125,6 +130,7 @@ namespace R7RSharp
             Quoted = quoted;
             Children = member;
         }
+
         public override string ToDot(Counter ct)
         {
             var id = ct.tick();
@@ -150,6 +156,11 @@ namespace R7RSharp
     class SSymbol: SExp
     {
         public string Value { get => Value; set => Value = value; }
+        public SSymbol(string value, SExp father)
+        {
+            this.Value = Value;
+            this.Father = father;
+        }
         public override string ToDot(Counter ct)
         {
             var id = ct.tick();

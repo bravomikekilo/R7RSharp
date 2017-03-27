@@ -14,7 +14,7 @@ namespace R7RSharp
             for(int i = cache.Count; i < targetIndex; ++i)
             {
                 var n = this.forward();
-                if (Lexeme.isEOF(n)) { return false; }
+                if (Lex.isEOF(n)) { return false; }
                 else { cache.Add(n); }
             }
             return true;
@@ -22,7 +22,7 @@ namespace R7RSharp
 
         public bool extendNext()
         {
-            if (cache.Count > 0 && Lexeme.isEOF(cache[cache.Count - 1])) return false;
+            if (cache.Count > 0 && Lex.isEOF(cache[cache.Count - 1])) return false;
             var n = forward();
             cache.Add(n);
             return true;
@@ -74,7 +74,7 @@ namespace R7RSharp
         //private bool check(Delegate)
         
         private Lexeme forward() {
-            if (pos >= content.Length) return Lexeme.EOF();
+            if (pos >= content.Length) return new EOF();
 
             var space = parseWhiteSpace();
             if (space != null) return space;
@@ -122,7 +122,7 @@ namespace R7RSharp
                         {
                             if (p > f) sb.Append(content, f, p - f);
                             pos = ++p;
-                            return Lexeme.Str(sb.ToString());
+                            return new Str(sb.ToString());
                         }
                     }
                 }
@@ -139,9 +139,9 @@ namespace R7RSharp
             if (!Char.IsWhiteSpace(content[pos])) return null;
             for (; pos < content.Length; ++pos) 
             {
-                if (!Char.IsWhiteSpace(content[pos])) { return Lexeme.WhiteSpace(); }
+                if (!Char.IsWhiteSpace(content[pos])) { return new WhiteSpace(); }
             }
-            return Lexeme.WhiteSpace();
+            return new WhiteSpace();
         }
         
         private static readonly Regex NumberPattern = new Regex(@"\G[1-9][0-9]*\.?[0-9]*");
@@ -159,7 +159,7 @@ namespace R7RSharp
                     var value = Int32.Parse(temp);
                     //Console.WriteLine("parse a Int, Length is {0}", match.Length);
                     pos += match.Length;
-                    return Lexeme.Int(value);
+                    return new Int(value);
                 }
                 catch (FormatException)
                 {
@@ -168,7 +168,7 @@ namespace R7RSharp
                         var value = Double.Parse(temp);
                         //Console.WriteLine("parse a Float");
                         pos += match.Length;
-                        return Lexeme.Float(value);
+                        return new Float(value);
                     }
                     catch (FormatException)
                     {
@@ -189,7 +189,7 @@ namespace R7RSharp
             {
                 var con = content.Substring(pos, match.Length);
                 pos += match.Length;
-                return Lexeme.Iden(con);
+                return new Iden(con);
             }
             return null ;
         }
@@ -203,11 +203,11 @@ namespace R7RSharp
                 {
                     var con = content.Substring(pos + 1);
                     pos = content.Length;
-                    return Lexeme.Comment(con);
+                    return new Comment(con);
                 }
                 else
                 {
-                    var ret = Lexeme.Comment(content.Substring(pos + 1, changeLine - pos));
+                    var ret = new Comment(content.Substring(pos + 1, changeLine - pos));
                     pos = ++changeLine;
                     return ret;
                 }
@@ -218,9 +218,9 @@ namespace R7RSharp
         private Lexeme parseMisc()
         {
             var head = content[pos];
-            if (head == R7Lang.LPARE) { ++pos; return Lexeme.Iden("("); };
-            if (head == R7Lang.RPARE) { ++pos; return Lexeme.Iden(")"); };
-            if (head == R7Lang.SQUTO) { ++pos; return Lexeme.Iden("'"); };
+            if (head == R7Lang.LPARE) { ++pos; return new Keyword(R7Lang.KEYWORDS.LPARE); };
+            if (head == R7Lang.RPARE) { ++pos; return new Keyword(R7Lang.KEYWORDS.RPARE); };
+            if (head == R7Lang.SQUTO) { ++pos; return new Keyword(R7Lang.KEYWORDS.SQUTO); };
 
             if (head == R7Lang.SHARP)
             {
@@ -231,7 +231,7 @@ namespace R7RSharp
                     {
                         var con = content.Substring(pos - 1, match.Length+1);
                         pos += match.Length;
-                        return Lexeme.Iden(con);
+                        return new Iden(con);
                     }
                     else --pos;
                 }
@@ -268,8 +268,8 @@ namespace R7RSharp
 
         public void Reset()
         {
-            this.index = -1;
-            this.cache = new Lexeme();
+            index = -1;
+            cache = null;
         }
 
         public void Dispose() { }
@@ -277,7 +277,7 @@ namespace R7RSharp
         public LexemeEnum(Lexer producer)
         {
             this.index = -1;
-            this.cache = new Lexeme();
+            this.cache = null;
             this.producer = producer;
         }
 
