@@ -21,16 +21,18 @@ namespace R7RSharp
 
     public abstract class SExp
     {
-        public SExp Father { get => Father; set => value = Father; }
+        public SExp Father;
+        public SExp(SExp father) { Father = father; }
         abstract public string ToDot(Counter ct);
     }
 
-    class SRoot: SExp
+    public class SRoot: SExp
     {
-        public LinkedList<SExp> Children { get => Children; set => Children = value; }
-        public SRoot()
+        public List<SExp> Children;
+        public SRoot():base(null)
         {
-            Children = new LinkedList<SExp>();
+            Children = new List<SExp>();
+            Console.WriteLine("prepare to build a link list");
         }
 
         public override string ToDot(Counter ct)
@@ -52,18 +54,17 @@ namespace R7RSharp
 
         public override string ToString()
         {
-            return String.Join("" , from i in Children select i.ToString()); 
+            return String.Join("body \n" , from i in Children select i.ToString()); 
         }
 
     }
 
-    class SInt: SExp
+    public class SInt: SExp
     {
-        public int Value { get => Value; set => Value = value; }
-        public SInt(int value ,SExp father)
+        public int Value;
+        public SInt(int value ,SExp father):base(father)
         {
             this.Value = value;
-            this.Father = father;
         }
 
         public override string ToDot(Counter ct)
@@ -79,13 +80,12 @@ namespace R7RSharp
 
     }
 
-    class SFloat: SExp
+    public class SFloat: SExp
     {
-        public double Value { get => Value; set => Value = value; }
-        public SFloat(double value, SExp father)
+        public double Value;
+        public SFloat(double value, SExp father):base(father)
         {
             this.Value = value;
-            this.Father = father;
         }
         public override string ToDot(Counter ct)
         {
@@ -98,14 +98,13 @@ namespace R7RSharp
         }
     }
 
-    class SString: SExp
+    public class SString: SExp
     {
 
-        public string Value { get => Value; set => Value = value; }
-        public SString(string value, SExp father)
+        public string Value; 
+        public SString(string value, SExp father):base(father)
         {
             this.Value = value;
-            this.Father = father;
         }
 
         public override string ToDot(Counter ct)
@@ -120,13 +119,13 @@ namespace R7RSharp
         }
     }
 
-    class SList: SExp
+    public class SList: SExp
     {
-        public LinkedList<SExp> Children { get => Children; set => Children = value; }
-        public bool Quoted { get => Quoted; set => Quoted = value; }
-        public SList(LinkedList<SExp> member, SExp father, bool quoted = false)
+        public LinkedList<SExp> Children;
+        public bool Quoted;
+        public SList(LinkedList<SExp> member, 
+            SExp father, bool quoted = false):base(father)
         {
-            Father = father;
             Quoted = quoted;
             Children = member;
         }
@@ -149,17 +148,18 @@ namespace R7RSharp
         }
         public override string ToString()
         {
-            return String.Format("List, Quoted:{0}\n", Quoted) + String.Join("", from i in Children select "\t" + i.ToString());
+            var sum = String.Join("", from i in Children select i.ToString());
+            return String.Format("List, Quoted:{0}\n", Quoted) + String.Join("",
+                    from i in sum.Split('\n') select "  " + i + "\n");
         }
     }
 
-    class SSymbol: SExp
+    public class SSymbol: SExp
     {
-        public string Value { get => Value; set => Value = value; }
-        public SSymbol(string value, SExp father)
+        public string Value;
+        public SSymbol(string value, SExp father):base(father)
         {
-            this.Value = Value;
-            this.Father = father;
+            this.Value = value;
         }
         public override string ToDot(Counter ct)
         {

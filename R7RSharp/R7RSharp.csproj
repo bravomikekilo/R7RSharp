@@ -9,4 +9,8 @@
     <PackageReference Include="xunit" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Compiler\" />
+  </ItemGroup>
+
 </Project>

@@ -4,40 +4,42 @@ using System.Text;
 
 namespace R7RSharp.Syntax
 {
-    class Parser
+    public class Parser
     {
         private LexemeEnum LexPointer;
-        public SRoot Root { get => Root; set => Root = value; }
+        public SRoot Root; 
 
         public Parser(Lexer lexer)
         {
             LexPointer = new LexemeEnum(lexer);
-            Root = new SRoot();
+            new Parser(LexPointer);
         }
 
         public Parser(LexemeEnum pointer)
         {
             LexPointer = pointer;
+            LexPointer.MoveNext();
             Root = new SRoot();
         }
 
         public void buildAll() // build the whole tree
         {
+            Console.WriteLine("begin to build the whole tree");
             while (true)
             {
                 JumpWhiteSpace();
-
+                Console.WriteLine("now the Lexeme is {0}", LexPointer.Current);
                 var single = buildSingle(Root);
                 if (single != null)
                 {
-                    Root.Children.AddLast(single);
+                    Root.Children.Add(single);
                     continue;
                 }
-
+                Console.WriteLine("For List \nnow the Lexeme is {0}", LexPointer.Current);
                 var list = buildList(Root);
                 if (list != null)
                 {
-                    Root.Children.AddLast(list);
+                    Root.Children.Add(list);
                     continue;
                 }
                 break;
@@ -54,7 +56,7 @@ namespace R7RSharp.Syntax
 
         private SList buildList(SExp father)
         {
-            if (LexPointer.Current != R7Lang.LEX_LPARE) return null;
+            if (!LexPointer.Current.Equals(R7Lang.LEX_LPARE)) return null;
             LexPointer.MoveNext();
             var n = new SList(new LinkedList<SExp>(), father);
             while (true)
@@ -63,6 +65,7 @@ namespace R7RSharp.Syntax
                 var single = buildSingle(n);
                 if (single != null)
                 {
+                    Console.WriteLine("Root get a single {0}", single.ToString());
                     n.Children.AddLast(single);
                     continue;
                 }
@@ -70,21 +73,28 @@ namespace R7RSharp.Syntax
                 var list = buildList(n);
                 if (list != null)
                 {
+                    Console.WriteLine("Root get a single {0}", list.ToString());
                     n.Children.AddLast(list);
                     continue;
                 }
                 break;
             }
-            if (LexPointer.Current != R7Lang.LEX_RPARE) throw new CompilerException("parser error, Unclosed (");
+            Console.WriteLine("now the Lexeme is {0}", LexPointer.Current);
+            if (!LexPointer.Current.Equals(R7Lang.LEX_RPARE)) throw new CompilerException("parser error, Unclosed (");
             LexPointer.MoveNext();
             
-            return null;
+            return n;
         }
 
         private SExp buildSingle(SExp father)
         {
             var cur = LexPointer.Current as IToSExp;
-            if (cur != null) return cur.ToSExp(father);
+            if (cur != null)
+            {
+                Console.WriteLine(cur);
+                LexPointer.MoveNext();
+                return cur.ToSExp(father);
+            }
             return null;
         }
 

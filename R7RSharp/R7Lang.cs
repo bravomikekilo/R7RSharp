@@ -47,7 +47,7 @@ namespace R7RSharp
 
         public static readonly Keyword LEX_SQUTO = new Keyword(KEYWORDS.SQUTO);
         public static readonly Keyword LEX_LPARE = new Keyword(KEYWORDS.LPARE);
-        public static readonly Keyword LEX_RPARE = new Keyword(KEYWORDS.SQUTO);
+        public static readonly Keyword LEX_RPARE = new Keyword(KEYWORDS.RPARE);
 
 
         public static bool isWhiteSpaceChar(char a)

@@ -254,16 +254,10 @@ namespace R7RSharp
 
         public bool MoveNext()
         {
-            if (producer.extendNext())
-            {
-                ++index;
-                cache = producer[index];
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            if (cache != null && Lex.isEOF(cache)) { return false; }
+            ++index;
+            cache = producer[index];
+            return true;
         }
 
         public void Reset()
