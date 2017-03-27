@@ -27,10 +27,10 @@ namespace R7RSharp
 
     class SRoot: SExp
     {
-        public List<SExp> Children { get => Children; set => Children = value; }
+        public LinkedList<SExp> Children { get => Children; set => Children = value; }
         public SRoot()
         {
-            Children = new List<SExp>();
+            Children = new LinkedList<SExp>();
         }
 
         public override string ToDot(Counter ct)

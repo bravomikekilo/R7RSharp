@@ -95,5 +95,25 @@ namespace LexTest
             var b = new Int(2);
             Assert.Equal(a, b, new CustomEquality<Lexeme>());
         }
+
+        [Fact]
+        public void LexerEnumReplayableTest()
+        {
+            var lexer = new Lexer(SourceOne);
+            LexemeEnum en = null;
+            var list = new List<Lexeme>();
+            for(int i = 0; i < 10; ++i)
+            {
+                en = new LexemeEnum(lexer);
+                while (en.MoveNext()) ;
+            }
+            en = new LexemeEnum(lexer);
+            while (en.MoveNext())
+            {
+                list.Add(en.Current);
+            }
+            Assert.Equal(LexemeOne, list, new ListComparer<Lexeme>());
+            
+        }
     }
 }

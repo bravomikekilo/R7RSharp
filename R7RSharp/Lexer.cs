@@ -245,7 +245,7 @@ namespace R7RSharp
         }
     }
 
-    class LexemeEnum : IEnumerator<Lexeme>
+    public class LexemeEnum : IEnumerator<Lexeme>
     {
         public Lexeme Current => cache;
 

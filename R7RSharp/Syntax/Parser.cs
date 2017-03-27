@@ -30,14 +30,14 @@ namespace R7RSharp.Syntax
                 var single = buildSingle(Root);
                 if (single != null)
                 {
-                    Root.Children.Add(single);
+                    Root.Children.AddLast(single);
                     continue;
                 }
 
                 var list = buildList(Root);
-                if (Root != null)
+                if (list != null)
                 {
-                    Root.Children.Add(list);
+                    Root.Children.AddLast(list);
                     continue;
                 }
                 break;
@@ -56,25 +56,27 @@ namespace R7RSharp.Syntax
         {
             if (LexPointer.Current != R7Lang.LEX_LPARE) return null;
             LexPointer.MoveNext();
-            var n = new SList(null, father);
+            var n = new SList(new LinkedList<SExp>(), father);
             while (true)
             {
                 JumpWhiteSpace();
                 var single = buildSingle(n);
                 if (single != null)
                 {
-                    Root.Children.Add(single);
+                    n.Children.AddLast(single);
                     continue;
                 }
 
-                var list = buildList(Root);
-                if (Root != null)
+                var list = buildList(n);
+                if (list != null)
                 {
-                    Root.Children.Add(list);
+                    n.Children.AddLast(list);
                     continue;
                 }
                 break;
             }
+            if (LexPointer.Current != R7Lang.LEX_RPARE) throw new CompilerException("parser error, Unclosed (");
+            LexPointer.MoveNext();
             
             return null;
         }
