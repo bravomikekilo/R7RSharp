@@ -28,14 +28,14 @@ namespace R7RSharp.Syntax
             while (true)
             {
                 JumpWhiteSpace();
-                Console.WriteLine("now the Lexeme is {0}", LexPointer.Current);
+                //Console.WriteLine("now the Lexeme is {0}", LexPointer.Current);
                 var single = buildSingle(Root);
                 if (single != null)
                 {
                     Root.Children.Add(single);
                     continue;
                 }
-                Console.WriteLine("For List \nnow the Lexeme is {0}", LexPointer.Current);
+                //Console.WriteLine("For List \nnow the Lexeme is {0}", LexPointer.Current);
                 var list = buildList(Root);
                 if (list != null)
                 {
@@ -65,7 +65,7 @@ namespace R7RSharp.Syntax
                 var single = buildSingle(n);
                 if (single != null)
                 {
-                    Console.WriteLine("Root get a single {0}", single.ToString());
+                    //Console.WriteLine("Root get a single {0}", single.ToString());
                     n.Children.AddLast(single);
                     continue;
                 }
@@ -73,13 +73,13 @@ namespace R7RSharp.Syntax
                 var list = buildList(n);
                 if (list != null)
                 {
-                    Console.WriteLine("Root get a single {0}", list.ToString());
+                    //Console.WriteLine("Root get a single {0}", list.ToString());
                     n.Children.AddLast(list);
                     continue;
                 }
                 break;
             }
-            Console.WriteLine("now the Lexeme is {0}", LexPointer.Current);
+            //Console.WriteLine("now the Lexeme is {0}", LexPointer.Current);
             if (!LexPointer.Current.Equals(R7Lang.LEX_RPARE)) throw new CompilerException("parser error, Unclosed (");
             LexPointer.MoveNext();
             

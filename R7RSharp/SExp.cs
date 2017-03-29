@@ -121,6 +121,9 @@ namespace R7RSharp
 
     public class SList: SExp
     {
+        class SNode{
+            public SExp Value;
+        }
         public LinkedList<SExp> Children;
         public bool Quoted;
         public SList(LinkedList<SExp> member, 
@@ -148,7 +151,7 @@ namespace R7RSharp
         }
         public override string ToString()
         {
-            var sum = String.Join("", from i in Children select i.ToString());
+            var sum = String.Join("", from i in Children select i.ToString()).Trim();
             return String.Format("List, Quoted:{0}\n", Quoted) + String.Join("",
                     from i in sum.Split('\n') select "  " + i + "\n");
         }
