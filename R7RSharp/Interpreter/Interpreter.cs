@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace R7RSharp.Interprerter {
-    class Interpreter {
+    public class Interpreter {
         private SRoot Root;
         private SymbolTable St;
 
@@ -13,22 +11,29 @@ namespace R7RSharp.Interprerter {
         }
 
         public void EvalRoot() {
-            foreach(var i in Root.Children) {
-                Eval(i);
-            }
+            foreach(var i in Root.Children) { Console.WriteLine(Eval(i)); }
         }
 
-        private R7Object Eval(SExp input) {
+        private SExp Eval(SExp input) {
             if (input == null) return null;
             var root = input as SList;
+            if(root == null) return input;
             if(root.Count == 0) return null;
             var en = root.GetEnumerator();
-            var sym = Eval(en.Current);
-            var args = new R7List();
-            while(en.MoveNext()){
-                args.PushBack(Eval(en.Current));
+            en.MoveNext();
+            var sym = Eval(en.Current) as SSymbol;
+            if(sym == null) throw new CompilerException("error ,cannot get symbol");
+            var args = new SList();
+            while(en.MoveNext())
+            {
+                args.PushBack(Eval(GetCurrent(en)));
             }
-            return null;
+            return St.Get(sym.Value)(args);
+        }
+
+        private static SExp GetCurrent(System.Collections.Generic.IEnumerator<SExp> en)
+        {
+            return en.Current;
         }
     }
 }
