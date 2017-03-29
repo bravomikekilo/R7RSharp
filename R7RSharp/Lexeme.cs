@@ -33,7 +33,7 @@ namespace R7RSharp
             return o != null && Value == o.Value;
         }
 
-        public SExp ToSExp(SExp father) => new SSymbol(Value, father);
+        public SExp ToSExp() => new SSymbol(Value);
         public override string ToString() => String.Format("{{Iden, Value:{0}}}", Value); 
     }
 
@@ -83,7 +83,7 @@ namespace R7RSharp
         private readonly int Value;
         public int get() => Value;
 
-        public SExp ToSExp(SExp father) => new SInt(Value, father);
+        public SExp ToSExp() => new SInt(Value);
             
 
         public Int(int value){ Value = value; }
@@ -98,7 +98,7 @@ namespace R7RSharp
             return o != null && Value == o.Value;
         }
 
-        public SExp ToSExp(SExp father) => new SFloat(Value, father);
+        public SExp ToSExp() => new SFloat(Value);
 
         private double Value;
         public Float(double value){ Value = value; }
@@ -113,7 +113,7 @@ namespace R7RSharp
             return o != null && Value == o.Value;
         }
 
-        public SExp ToSExp(SExp father) => new SString(Value, father);
+        public SExp ToSExp() => new SString(Value);
 
         private string Value;
         public Str(string value){ Value = value; }

@@ -21,8 +21,8 @@ namespace R7RSharp.Interprerter {
         private R7Object Eval(SExp input) {
             if (input == null) return null;
             var root = input as SList;
-            if(root.Children.Count == 0) return null;
-            var en = root.Children.GetEnumerator();
+            if(root.Count == 0) return null;
+            var en = root.GetEnumerator();
             var sym = Eval(en.Current);
             var args = new R7List();
             while(en.MoveNext()){

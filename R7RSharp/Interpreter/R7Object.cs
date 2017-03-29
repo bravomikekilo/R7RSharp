@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text;
-
+﻿
 namespace R7RSharp.Interprerter
 {
     abstract class R7Object
